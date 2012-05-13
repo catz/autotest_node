@@ -1,0 +1,53 @@
+doctype 5
+html(lang="en")
+  head
+    title= pageTitle
+    script(src='/socket.io/socket.io.js')
+    script(type='text/javascript')
+      var LogWatcher = (function() {
+        var socket;
+        var log_files = [];
+
+        return {
+          init: function() {
+            socket = new io.connect();
+            socket.on('log_files_add', function(files) {
+              files.forEach(function(file) {
+                var idx = log_files.indexOf(file);
+                if (idx < 0) {                  
+                  log_files.push(file);
+                  console.log('add ' + file);
+                  console.log('subscribing to ' + file + ':lines');
+                  socket.on(file + ':lines', function(lines) {
+                    console.log('received event: ' + file + ':lines');
+                    for(var i = 0; i < lines.length; i++) {
+                      console.log(file + ' : ' + lines[i]);
+                    }
+                  })
+                }
+              })
+            });
+
+            socket.on('log_files_remove', function(files) {
+              files.forEach(function(file) {
+                var idx = log_files.indexOf(file);
+                if (idx >= 0) {
+                  log_files.splice(idx, 1);
+                  socket.removeAllListeners(file + ':lines');
+                }
+                console.log('remove ' + file)
+              })
+            }); 
+
+            setInterval(function() {
+              console.log(log_files);
+            }, 5000);           
+          }
+        }
+      })();
+
+      window.load = LogWatcher.init();
+  body
+    h3 Log watcher
+    #container
+      p Get on it!

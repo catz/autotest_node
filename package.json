@@ -1,0 +1,24 @@
+{
+  "name": "autotest_node",
+  "version": "0.0.1",
+  "description": "Log monitoring",
+  "keywords": [
+    "log monitoring",
+    "tail"
+  ],
+  "author": [
+    "Roman Truschev <truschev@gmail.com>"
+  ],
+  "scripts": {
+    "start": "node lib/server.js"
+  },
+  "engines": {
+    "node": ">= 0.6.0 < 0.7.0"
+  },
+  "dependencies": {
+    "watch": "~0.5.1",
+    "socket.io": "~0.9.6",
+    "walk": "~2.1.1",
+    "jade": "~0.26.0"
+  }
+}
