@@ -2,7 +2,13 @@ doctype 5
 html(lang="en")
   head
     title= pageTitle
+    script(src='http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js')
+    link(rel='stylesheet', href='http://twitter.github.com/bootstrap/assets/css/bootstrap.css')   
+    script(src='http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.0.2/bootstrap.min.js')      
     script(src='/socket.io/socket.io.js')
+
+    style
+      .item .content {overflow-y: auto; height: 300px; margin-top: 10px;}
     script(type='text/javascript')
       var LogWatcher = (function() {
         var socket;
@@ -16,11 +22,14 @@ html(lang="en")
                 var idx = log_files.indexOf(file);
                 if (idx < 0) {                  
                   log_files.push(file);
-                  console.log('add ' + file);
+                  var file_id = file.replace(/[/\.]/g, '_');
+                  $('#logs').append("<div class='span11 item well' id='" + file_id + "'><div class='block-header'><span class='label label-info'>Log name</span><b>" + file);
+                  $('#' + file_id).append('<div class=content>');
                   console.log('subscribing to ' + file + ':lines');
                   socket.on(file + ':lines', function(lines) {
                     console.log('received event: ' + file + ':lines');
                     for(var i = 0; i < lines.length; i++) {
+                      $('#' + file_id + ' .content').prepend('<div class=line>' + lines[i]);
                       console.log(file + ' : ' + lines[i]);
                     }
                   })
@@ -35,6 +44,8 @@ html(lang="en")
                   log_files.splice(idx, 1);
                   socket.removeAllListeners(file + ':lines');
                 }
+                var file_id = file.replace(/[/\.]/g, '_');
+                $("#" + file_id).remove();
                 console.log('remove ' + file)
               })
             }); 
@@ -47,7 +58,18 @@ html(lang="en")
       })();
 
       window.load = LogWatcher.init();
-  body
-    h3 Log watcher
-    #container
-      p Get on it!
+  body.container
+    header.row
+      .span12.navbar
+        .navbar-inner
+          .container
+            a.brand Log monitor
+            .nav-collapse
+            ul.nav.nav-tab
+              li.divider-vertical
+              li
+                a(href='#logs') Logs   
+    .tab-content
+      .tab-pane.active#dashboard
+        article
+          .row#logs
